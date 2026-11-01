@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>TESS LAB | 도형의 이동으로 만드는 나만의 테셀레이션</title>
+<style>
+:root{--bg:#f5f7fc;--surface:#fff;--ink:#202d44;--muted:#61728b;--stroke:#dfe7f1;--primary:#425bd3;--primary2:#253d9e;--aqua:#15a9a1;--orange:#ec9146;--soft:#eef1ff;--shadow:0 10px 35px rgba(28,50,103,.07);font-synthesis:none}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.58}
+button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.46}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #91c9ff;outline-offset:2px}
+.app{max-width:1430px;padding:0 26px 64px;margin:auto}
+.hero{padding:26px 0 25px;display:flex;align-items:center;justify-content:space-between;gap:25px}
+.brand{display:flex;gap:15px;align-items:center}.brand-logo{height:57px;width:57px;display:grid;place-items:center;border-radius:17px;background:linear-gradient(145deg,#435bdd,#24b6ae);color:white;font-size:23px;box-shadow:0 9px 23px rgba(45,89,201,.24);font-weight:900}
+.eyebrow{font-size:12px;letter-spacing:.12em;color:var(--primary);font-weight:800}.hero h1{font-size:clamp(22px,2.6vw,34px);letter-spacing:-.045em;margin:2px 0 1px;line-height:1.28}.hero p{margin:0;color:var(--muted);font-size:14px}.hero-chip{white-space:nowrap;border:1px solid #baded9;background:#effaf7;border-radius:999px;padding:8px 13px;font-size:12px;color:#26796c;font-weight:700;display:flex;align-items:center;gap:7px}
+.progress-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}.nav-step{min-width:0;display:flex;align-items:center;gap:13px;padding:15px 16px;text-align:left;background:white;border:1px solid var(--stroke);border-radius:16px;color:var(--ink);transition:all .2s}.nav-step:hover{border-color:#b3bfee;transform:translateY(-1px)}.nav-step.active{border-color:#8698f3;background:#edf0ff;box-shadow:0 5px 19px rgba(74,91,200,.12)}.nav-num{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#eff2f8;font-weight:850;font-size:13px;color:var(--muted);flex-shrink:0}.nav-step.active .nav-num{background:var(--primary);color:white}.nav-copy strong{font-size:14px;display:block;line-height:1.2}.nav-copy small{color:var(--muted);font-size:12px;display:block;margin-top:3px;line-height:1.3}
+.stage{display:none;animation:slidein .24s ease-out}.stage.active{display:block}@keyframes slidein{from{opacity:.5;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.stage-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:15px;margin:7px 0 17px}.stage-heading h2{font-size:24px;letter-spacing:-.04em;line-height:1.36;margin:0}.stage-heading p{font-size:14px;color:var(--muted);margin:5px 0 0}.stage-label{display:inline-block;color:var(--primary);font-weight:900;letter-spacing:.08em;font-size:12px;margin-bottom:6px}
+.workspace{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(355px,.7fr);gap:20px;align-items:start}.workspace.art{grid-template-columns:minmax(0,1.16fr) minmax(375px,.84fr)}.stack{display:grid;gap:16px}
+.panel{background:var(--surface);border:1px solid var(--stroke);border-radius:20px;box-shadow:var(--shadow);padding:20px;min-width:0}.panel.tight{padding:17px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.panel h3{font-size:16px;margin:0;letter-spacing:-.02em}.panel-sub{font-size:12px;color:var(--muted)}
+.canvas-wrap{border-radius:14px;border:1px solid #e5eaf4;background:linear-gradient(140deg,#fff,#f8faff);overflow:hidden;position:relative}canvas{display:block;width:100%;height:auto;touch-action:none}.canvas-notice{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px;margin-top:11px}.legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}.legend span{display:inline-flex;align-items:center;gap:6px}.dot{height:9px;width:9px;border-radius:3px;background:var(--primary);display:inline-block}.dot.orange{background:var(--orange)}.dot.green{background:#36ad82}
+.question{border-left:4px solid #52a4db;background:#f0f7ff;border-radius:9px;padding:12px 14px;margin-bottom:15px;font-size:14px;font-weight:750;color:#2b557e}
+.section-mini{font-weight:800;font-size:13px;margin:0 0 8px;color:#34476b}.control-block{margin:0 0 17px}.control-block:last-child{margin-bottom:0}.control-block .row-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:7px}.row-top label{font-size:13px;font-weight:750}.value{color:var(--primary);font-size:13px;font-weight:850;font-variant-numeric:tabular-nums}.seg{display:flex;background:#f0f3fa;border-radius:11px;padding:4px;gap:3px;flex-wrap:wrap}.seg button{flex:1;min-width:max-content;border:0;border-radius:8px;padding:9px 9px;background:transparent;font-size:12.5px;color:#63738f;font-weight:750}.seg button.active{background:white;color:var(--primary2);box-shadow:0 2px 7px rgba(20,40,80,.1)}
+.control-flex{display:flex;gap:10px;align-items:center}.control-flex>input[type=range]{flex:1;min-width:0}input[type=range]{accent-color:var(--primary);cursor:pointer;width:100%;min-height:24px}.range-number{font-size:12px;min-width:33px;text-align:right;color:var(--primary2);font-weight:800;font-variant-numeric:tabular-nums}
+select,textarea{width:100%;border:1px solid #d6e0ee;border-radius:9px;background:#fff;color:var(--ink);padding:10px 11px;outline-color:#9bb0ff}select{cursor:pointer}textarea{resize:vertical;font-size:13px;line-height:1.65}
+.button-row{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid #dce4f0;border-radius:10px;background:white;color:#334661;padding:10px 13px;font-size:13px;font-weight:780;transition:transform .15s,border-color .15s,background .15s}.btn:hover{transform:translateY(-1px);border-color:#9bb0eb}.btn.primary{background:var(--primary);color:white;border-color:var(--primary)}.btn.primary:hover{background:var(--primary2)}.btn.teal{background:#0b918b;color:white;border-color:#0b918b}.btn.ghost{background:#f5f7fb}.btn.small{padding:8px 11px;font-size:12px}.btn.full{width:100%}.btn.active{border-color:var(--primary);background:#eef1ff;color:var(--primary2)}
+.formula{border:1px solid #e2e9f3;background:#f8faff;border-radius:12px;padding:12px 14px;margin-top:12px}.formula .title{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.04em}.formula .equation{font-size:17px;font-weight:850;color:#283c79;word-break:break-word;line-height:1.5;margin:4px 0}.formula .extra{color:var(--muted);font-size:12px}
+.feedback{font-size:12.5px;line-height:1.6;border-radius:9px;background:#fff7e9;border:1px solid #f5deb6;color:#885616;padding:10px 13px;margin-top:12px}.feedback.success{background:#ebfaf4;border-color:#c2eedb;color:#147451}.feedback strong{font-weight:850}
+.callout{padding:15px 18px;border-radius:13px;background:#f0f4ff;border:1px solid #e2eaff;margin-top:18px}.callout strong{color:#2a4c95}.callout p{margin:6px 0 0;font-size:13px;color:#536781}
+.hr{border:0;border-top:1px solid #e8edf4;margin:16px 0}.quiet{font-size:12.5px;color:var(--muted)}.help{font-size:12px;color:#64768d;margin-top:5px}.hidden{display:none!important}.check{display:flex;gap:8px;align-items:center;font-size:12px;color:#536882;cursor:pointer}.check input{accent-color:var(--primary);width:16px;height:16px}
+.stage-footer{display:flex;justify-content:space-between;gap:10px;margin-top:17px;align-items:center}.stage-footer .btn{padding:12px 20px}
+.preset-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.preset-row button{min-width:0;white-space:normal}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat-pills{display:flex;gap:8px;flex-wrap:wrap}.stat-pill{display:inline-block;border-radius:20px;background:#f2f5fa;padding:6px 11px;font-size:11px;color:#53647e;font-weight:800}
+.progress-track{height:9px;border-radius:20px;background:#edf1f6;overflow:hidden}.progress-track>div{height:100%;width:3%;background:linear-gradient(90deg,#455de0,#25b6a6);transition:width .2s;border-radius:20px}.inline-muted{color:var(--muted);font-size:12px}
+.art-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}.art-controls label{display:block;font-size:12px;font-weight:800;color:#42546f;margin-bottom:5px}.art-controls .wide{grid-column:1/-1}.palette-preview{margin-top:8px;border:1px solid #dbe5f0;border-radius:12px;padding:10px;background:#fbfdff}.palette-preview .preview-title{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:12px;color:#52657d;margin-bottom:8px}.palette-preview .preview-title strong{color:#314863}.palette-chips{display:flex;flex-wrap:wrap;gap:7px}.palette-chip{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.96);box-shadow:0 0 0 1px rgba(121,141,166,.25)}.palette-note{font-size:11px;color:#70829a;margin-top:8px;line-height:1.4}.art-preview{background:#f4f6fb}.prompt-box{background:#f5f8fe;border:1px solid #e1e8f5;border-radius:13px;padding:13px;margin-top:13px}.prompt-box textarea{margin:7px 0 0;min-height:140px;background:white}
+.extended{margin-top:17px}.extended summary{cursor:pointer;color:#536682;font-size:13px;font-weight:800;list-style:none;padding:13px 15px;border-radius:12px;background:white;border:1px solid var(--stroke)}.extended summary::before{content:'＋';margin-right:9px;color:var(--primary);font-weight:900}.extended[open] summary::before{content:'－'}.extension-body{margin-top:9px;background:#fff;border:1px solid var(--stroke);border-radius:13px;padding:15px}.extension-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.extension-grid canvas{max-height:300px;object-fit:contain}.extension-grid p{font-size:13px;color:var(--muted)}
+.credit{text-align:center;margin-top:24px;color:#8190a7;font-size:11px}
+@media(max-width:1120px){.app{padding:0 18px 40px}.workspace,.workspace.art{grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr)}.panel{padding:16px}.nav-step{padding:12px}.nav-copy small{display:none}}
+@media(max-width:880px){.workspace,.workspace.art{grid-template-columns:1fr}.progress-nav{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.nav-step{justify-content:center;flex-direction:column;gap:5px;padding:10px 4px}.nav-copy{text-align:center}.nav-copy strong{font-size:11px}.hero-chip{display:none}.stage-heading{display:block}.stage-heading h2{font-size:21px}.extension-grid{grid-template-columns:1fr}}
+@media(max-width:500px){.app{padding:0 10px 30px}.hero{padding:17px 4px;gap:8px}.brand-logo{height:42px;width:42px;border-radius:12px;font-size:18px}.hero h1{font-size:20px}.hero p{font-size:11px}.eyebrow{font-size:10px}.brand{gap:10px}.panel{padding:12px;border-radius:13px}.stage-heading h2{font-size:19px}.nav-num{height:26px;width:26px;font-size:11px}.nav-copy strong{font-size:10px}.nav-step{border-radius:10px}.two-col{grid-template-columns:1fr}.formula .equation{font-size:15px}.art-controls{grid-template-columns:1fr}.art-controls .wide{grid-column:auto}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="hero">
+  <div class="brand"><div class="brand-logo" aria-hidden="true">T</div><div><div class="eyebrow">2026 대전미래교육박람회 · 수학 × 미술 × AI</div><h1>도형을 움직이면, 패턴이 된다</h1><p>도형의 이동으로 만드는 나만의 테셀레이션 · TESS LAB</p></div></div>
+  <div class="hero-chip">● HTML 한 파일 · 수학 탐구 오프라인 가능</div>
+</header>
+<nav class="progress-nav" aria-label="학습 단계">
+  <button class="nav-step active" data-step="1" aria-current="step"><span class="nav-num">01</span><span class="nav-copy"><strong>이동 원리 탐구</strong><small>좌표평면에서 직접 이동</small></span></button>
+  <button class="nav-step" data-step="2"><span class="nav-num">02</span><span class="nav-copy"><strong>나만의 타일 제작</strong><small>대응변을 함께 변형</small></span></button>
+  <button class="nav-step" data-step="3"><span class="nav-num">03</span><span class="nav-copy"><strong>패턴 완성</strong><small>평행이동 규칙 반복</small></span></button>
+  <button class="nav-step" data-step="4"><span class="nav-num">04</span><span class="nav-copy"><strong>미술 × AI 디자인</strong><small>화풍 · 프롬프트 · 굿즈</small></span></button>
+</nav>
+
+<!-- 1. 좌표 변환 -->
+<section class="stage active" id="stage1" aria-label="1단계 이동 원리 탐구">
+  <header class="stage-heading"><div><span class="stage-label">STEP 01 · MATHEMATICS</span><h2>한 조각을 어디로 옮겨야 빈틈없이 맞을까?</h2><p>완성된 패턴을 보는 대신, <strong>이동량과 좌표 변환을 직접 조절</strong>하여 규칙을 찾아보세요.</p></div></header>
+  <div class="workspace">
+    <div class="panel"><div class="panel-head"><h3>좌표평면 실험실</h3><div class="legend"><span><i class="dot"></i>원본 A</span><span><i class="dot orange"></i>변환한 B</span><span><i class="dot green"></i>목표 위치</span></div></div>
+      <div class="canvas-wrap"><canvas id="moveCanvas" width="960" height="600" aria-label="원본 도형과 이동 도형의 좌표평면"></canvas></div>
+      <div class="canvas-notice">☝️ 평행이동 모드에서는 주황색 도형을 직접 끌어서 이동할 수도 있습니다. 격자 한 칸은 1입니다.</div>
+    </div>
+    <div class="stack">
+      <div class="panel">
+        <div class="question">탐구 질문 · 위치가 달라져도 도형의 모양과 크기가 유지되는 이유는 무엇일까?</div>
+        <div class="control-block"><div class="section-mini">1. 이동 방법 선택</div><div class="seg" id="operationGroup"><button type="button" data-op="translate" class="active">평행이동</button><button type="button" data-op="reflect">대칭이동</button><button type="button" data-op="rotate">회전이동 · 심화</button></div></div>
+        <div id="translateControls">
+          <div class="control-block"><div class="section-mini">2. 어느 쪽에 맞춰볼까?</div><div class="seg" id="goalGroup"><button data-goal="right" class="active">오른쪽에 연결</button><button data-goal="up">위쪽에 연결</button></div></div>
+          <div class="control-block"><div class="row-top"><label for="moveX">x방향 이동량 a</label><span class="value" id="moveXLabel">+2</span></div><div class="control-flex"><input type="range" id="moveX" min="-4" max="4" step="1" value="2"><span class="range-number" id="moveXNum">2</span></div></div>
+          <div class="control-block"><div class="row-top"><label for="moveY">y방향 이동량 b</label><span class="value" id="moveYLabel">+1</span></div><div class="control-flex"><input type="range" id="moveY" min="-3" max="3" step="1" value="1"><span class="range-number" id="moveYNum">1</span></div></div>
+          <div class="button-row"><button class="btn small" id="hintMove">힌트: 한 변의 길이는?</button><button class="btn small" id="resetMove">이동량 초기화</button></div>
+        </div>
+        <div id="reflectControls" class="hidden"><div class="control-block"><label class="section-mini" for="reflectAxis">대칭축을 선택해 보세요.</label><select id="reflectAxis"><option value="y0">x축 (y = 0)</option><option value="x0">y축 (x = 0)</option><option value="x2">직선 x = 2</option><option value="y2">직선 y = 2</option><option value="diag">직선 y = x</option></select><p class="help">내부 화살표가 뒤집히는 방향을 살펴보고 평행이동과 비교하세요.</p></div></div>
+        <div id="rotateControls" class="hidden"><div class="control-block"><label class="section-mini" for="rotateAngle">원점을 중심으로 회전</label><select id="rotateAngle"><option value="90">반시계 방향 90°</option><option value="180">180°</option><option value="270">반시계 방향 270°</option></select><p class="help">회전이동은 심화 탐구입니다. 원점으로부터 거리의 변화를 관찰하세요.</p></div></div>
+        <div class="formula"><div class="title" id="moveFormulaTitle">실시간 평행이동 좌표식</div><div class="equation" id="moveFormula">(x, y) → (x+2, y+1)</div><div class="extra" id="movePoint">A(0, 0) → A′(2, 1)</div></div>
+        <div class="feedback" id="moveFeedback" aria-live="polite">이동한 도형을 초록색 목표 위치에 맞춰보세요.</div>
+      </div>
+      <div class="panel tight"><h3>수학적 관찰 포인트</h3><p class="quiet" style="margin:7px 0 0">대응점의 <strong>좌표 차이</strong>를 확인하고, 평행이동과 대칭이동이 내부 문양의 <strong>방향</strong>에 주는 영향을 비교해보세요.</p></div>
+    </div>
+  </div>
+  <div class="stage-footer"><span class="inline-muted">기본 학습: 평행이동과 대칭이동 · 심화: 회전이동</span><button class="btn primary" data-next="2">다음: 나만의 타일 만들기 →</button></div>
+  <details class="extended" id="polygonDetails"><summary>선택 탐구 · 정다각형이 한 꼭짓점에서 만나는 각도 비교 (중학교 개념 복습)</summary><div class="extension-body"><div class="extension-grid"><div><div class="control-block"><label for="polygonType" class="section-mini">정다각형 선택</label><select id="polygonType"><option value="3">정삼각형</option><option value="4">정사각형</option><option value="5">정오각형</option><option value="6">정육각형</option></select></div><p id="polygonInfo">한 꼭짓점에서 만나는 내각을 살펴보세요.</p><p class="help">정오각형은 3개를 놓으면 36°의 틈이 남습니다. 2단계의 변형 타일은 정오각형이 아니라 <strong>평행이동 규칙으로 만든 변형 사각형</strong>입니다.</p></div><div class="canvas-wrap"><canvas id="polygonCanvas" width="640" height="310" aria-label="정다각형이 한 꼭짓점에 모이는 그림"></canvas></div></div></div></details>
+</section>
+
+<!-- 2. 대응변 편집 -->
+<section class="stage" id="stage2" aria-label="2단계 타일 제작">
+  <header class="stage-heading"><div><span class="stage-label">STEP 02 · MATHEMATICS + MAKING</span><h2>한쪽 변을 바꾸면, 반대쪽 변은 어떻게 해야 할까?</h2><p>두 조절점을 끌어 곡선을 만들어보세요. <strong>대응변은 정확히 같은 거리만큼 평행이동</strong>하여 자동으로 변형됩니다.</p></div></header>
+  <div class="workspace">
+    <div class="panel"><div class="panel-head"><h3>드래그로 만드는 변형 타일</h3><div class="legend"><span><i class="dot orange"></i>아래 변</span><span><i class="dot"></i>오른쪽 변</span></div></div>
+      <div class="canvas-wrap"><canvas id="editCanvas" width="960" height="600" aria-label="대응변의 굴곡을 직접 조작하는 테셀레이션 타일 편집기"></canvas></div>
+      <div class="canvas-notice">☝️ 가운데 타일의 <strong style="color:#ca7a26">주황색 조절점</strong>과 <strong style="color:#3b60cc">파란색 조절점</strong>을 마우스/손가락으로 움직여보세요.</div>
+      <div class="stat-pills" style="margin-top:12px"><span class="stat-pill">아래변 ↔ 위변: (0, 2) 평행이동</span><span class="stat-pill">왼쪽변 ↔ 오른쪽변: (2, 0) 평행이동</span></div>
+    </div>
+    <div class="stack">
+      <div class="panel">
+        <div class="question">탐구 질문 · 변을 마음대로 바꿔도 타일이 빈틈없이 맞물리려면 어떤 규칙을 지켜야 할까?</div>
+        <div class="control-block"><div class="section-mini">1. 곡선 빠르게 선택</div><div class="preset-row"><button class="btn small" data-preset="straight">반듯한 도형</button><button class="btn small" data-preset="wave">완만한 물결</button><button class="btn small" data-preset="bold">독특한 굴곡</button></div></div>
+        <div class="control-block"><div class="row-top"><label for="bottomAmp">아래·위 변의 굴곡</label><span class="value" id="bottomAmpLabel">+0.24</span></div><input id="bottomAmp" type="range" min="-0.4" max="0.4" step="0.01" value="0.24"><p class="help">아래 변을 바꾸면 위 변이 똑같이 바뀝니다.</p></div>
+        <div class="control-block"><div class="row-top"><label for="sideAmp">왼쪽·오른쪽 변의 굴곡</label><span class="value" id="sideAmpLabel">−0.20</span></div><input id="sideAmp" type="range" min="-0.4" max="0.4" step="0.01" value="-0.20"><p class="help">오른쪽 변을 바꾸면 왼쪽 변이 함께 바뀝니다.</p></div>
+        <div class="control-block"><div class="row-top"><label for="waveFreq">곡선 세부 굴곡 수</label><span class="value" id="waveFreqLabel">1</span></div><input id="waveFreq" type="range" min="1" max="4" step="1" value="1"></div>
+        <label class="check"><input type="checkbox" id="showNeighbors" checked>주변 타일 및 평행이동 연결 표시</label>
+        <div class="formula"><div class="title">한 타일의 두 쌍의 변이 지켜야 하는 규칙</div><div class="equation" style="font-size:14px">위변 = 아래변 + (0, 2)<br>오른쪽변 = 왼쪽변 + (2, 0)</div><div class="extra">대응하는 두 곡선의 점들이 동일한 평행이동으로 연결되므로 맞닿는 경계가 일치합니다.</div></div>
+        <div class="feedback success">✓ 한쪽 변의 변화가 반대쪽에 그대로 복사되어, 이 타일을 (2, 0), (0, 2)만큼 반복 이동하면 맞닿는 경계가 일치합니다.</div>
+      </div>
+    </div>
+  </div>
+  <div class="stage-footer"><button class="btn" data-next="1">← 이전</button><button class="btn primary" data-next="3">다음: 평행이동으로 반복하기 →</button></div>
+</section>
+
+<!-- 3. 반복 배치 -->
+<section class="stage" id="stage3" aria-label="3단계 패턴 완성">
+  <header class="stage-heading"><div><span class="stage-label">STEP 03 · MATHEMATICS + PATTERN</span><h2>이동 규칙 하나로 평면을 채워보자!</h2><p>내가 만든 타일에 평행이동 <strong>(2i, 2j)</strong>를 반복 적용하면 하나의 패턴이 완성됩니다.</p></div></header>
+  <div class="workspace">
+    <div class="panel"><div class="panel-head"><h3>반복 패턴 만들기</h3><span class="panel-sub" id="tileCounter">1 / 36개 배치</span></div>
+      <div class="canvas-wrap"><canvas id="patternCanvas" width="960" height="620" aria-label="수학적 평행이동으로 순차적으로 만들어지는 테셀레이션"></canvas></div>
+      <div class="canvas-notice">🔎 점선은 아직 채우지 않은 자리입니다. 한 조각씩 채운 후 전체 패턴을 완성해보세요.</div>
+      <div class="progress-track" style="margin-top:13px"><div id="fillProgress" style="width:2.78%"></div></div>
+    </div>
+    <div class="stack"><div class="panel"><div class="question">탐구 질문 · 하나의 타일을 복제하려면 이동 벡터를 어떤 규칙으로 정하면 될까?</div>
+      <div class="control-block"><div class="row-top"><label for="gridSize">가로·세로 타일 수</label><span class="value" id="gridSizeLabel">6 × 6</span></div><input type="range" id="gridSize" min="3" max="9" step="1" value="6"></div>
+      <div class="control-block"><label for="patternPalette" class="section-mini">패턴 색상</label><select id="patternPalette"><option value="pastel">파스텔 조합</option><option value="obang">한국 전통 오방색</option><option value="ocean">푸른 바다</option><option value="sunset">노을빛</option><option value="neon">네온</option><option value="forest">숲과 자연</option><option value="blossom">봄꽃</option><option value="earth">어스톤</option><option value="monotone">모노톤</option><option value="jewel">보석빛</option><option value="candy">캔디 팝</option></select><div class="palette-preview" id="patternPalettePreview"><div class="preview-title"><strong id="patternPaletteName">파스텔 조합</strong><span>색상 미리보기</span></div><div class="palette-chips" id="patternPaletteChips"></div><div class="palette-note">같은 이동 구조라도 색채를 바꾸면 전혀 다른 분위기의 패턴이 됩니다.</div></div></div>
+      <div class="control-block"><div class="section-mini">직접 규칙 반복하기</div><div class="button-row"><button id="addOne" class="btn">＋ 한 조각</button><button id="addRow" class="btn">＋ 한 줄</button><button id="fillAll" class="btn teal">전체 채우기</button><button id="clearAll" class="btn ghost">다시 시작</button></div></div>
+      <label class="check"><input id="showVector" type="checkbox" checked>마지막 배치된 타일의 이동 벡터 표시</label>
+      <div class="formula"><div class="title">모든 타일을 만드는 일반적인 평행이동</div><div class="equation" style="font-size:16px">Tᵢⱼ(x, y) = (x+2i, y+2j)</div><div class="extra">i, j는 정수 · 선택한 타일 이동량: <strong id="lastVector">(0, 0)</strong></div></div>
+      <div class="feedback" id="patternFeedback">타일을 하나씩 추가하여 규칙을 확인하세요.</div>
+    </div></div>
+  </div>
+  <div class="stage-footer"><button class="btn" data-next="2">← 이전</button><button class="btn primary" data-next="4">다음: 미술과 AI로 디자인하기 →</button></div>
+</section>
+
+<!-- 4. 예술 및 굿즈 -->
+<section class="stage" id="stage4" aria-label="4단계 미술 AI 디자인">
+  <header class="stage-heading"><div><span class="stage-label">STEP 04 · ART + AI + INNOVATION</span><h2>수학으로 만든 패턴에 나만의 예술을 입히자!</h2><p>화풍과 모티브를 정해 디자인하고, 필요하면 기관 엠블럼이나 원하는 이미지를 업로드해 굿즈 시안에 반영해보세요. AI 프롬프트를 만들고, 패턴이나 굿즈 시안을 PNG로 저장할 수 있습니다.</p></div></header>
+  <div class="workspace art">
+    <div class="stack">
+      <div class="panel"><div class="panel-head"><h3>실시간 패턴 디자인 & 굿즈 미리보기</h3><span class="panel-sub">변형된 타일을 평행이동한 구조 유지</span></div>
+        <div class="seg" id="previewGroup" style="margin-bottom:12px"><button class="active" data-preview="pattern">반복 패턴</button><button data-preview="tote">에코백</button><button data-preview="notebook">노트 표지</button></div>
+        <div class="canvas-wrap art-preview"><canvas id="artCanvas" width="960" height="620" aria-label="미술적 색채와 모티브를 반영한 테셀레이션 또는 굿즈 시안"></canvas></div>
+        <div class="button-row" style="margin-top:12px"><button class="btn primary" id="savePattern">⬇ 고해상도 패턴 PNG 저장</button><button class="btn" id="savePreview">⬇ 현재 미리보기 PNG 저장</button></div>
+        <p class="help">패턴은 1600×1600 PNG로 저장됩니다. 현재 미리보기는 화면 속 작품 또는 굿즈 시안을 저장합니다. 색채 필터도 저장 이미지에 반영됩니다.</p>
+      </div>
+    </div>
+    <div class="stack"><div class="panel"><div class="question">창작 질문 · 수학적 구조는 유지하면서 어떤 색과 문양을 더해 나만의 제품을 만들까?</div>
+      <p class="help" style="margin:0 0 12px">화풍을 바꾸면 어울리는 색상과 필터를 추천 적용합니다. 이후 개별 수정도 가능하며, 다양한 색채 팔레트를 바꾸어 같은 구조에 다른 분위기를 입혀볼 수 있습니다.</p>
+      <div class="art-controls">
+        <div><label for="artTheme">미술 화풍</label><select id="artTheme"><option value="escher">에셔풍 판화</option><option value="dancheong">한국 단청 · 민화</option><option value="stained">스테인드글라스</option><option value="cyberpunk">사이버펑크</option><option value="watercolor">파스텔 수채화</option><option value="botanical">보타니컬 아트</option></select></div>
+        <div><label for="motif">문양 모티브</label><select id="motif"><option value="fish">물고기</option><option value="bird">새</option><option value="flower">꽃과 잎</option><option value="wave">물결 · 구름</option><option value="none">문양 없이 색면만</option></select></div>
+        <div><label for="artPalette">색상 조합</label><select id="artPalette"><option value="pastel">파스텔 조합</option><option value="obang">한국 전통 오방색</option><option value="ocean">푸른 바다</option><option value="sunset">노을빛</option><option value="neon">네온</option><option value="forest">숲과 자연</option><option value="blossom">봄꽃</option><option value="earth">어스톤</option><option value="monotone">모노톤</option><option value="jewel">보석빛</option><option value="candy">캔디 팝</option></select><div class="palette-preview" id="artPalettePreview"><div class="preview-title"><strong id="artPaletteName">파스텔 조합</strong><span>색상 미리보기</span></div><div class="palette-chips" id="artPaletteChips"></div><div class="palette-note">기관 엠블럼, 화풍, 굿즈 종류와 어울리는 색 조합을 비교해 보세요.</div></div></div>
+        <div><label for="artFilter">질감 · 색채 필터</label><select id="artFilter"><option value="none">기본 색채</option><option value="woodcut">빈티지 목판화</option><option value="glass">강렬한 유리 색채</option><option value="night">네온 색채</option><option value="mono">흑백 수묵</option><option value="soft">부드러운 파스텔</option></select></div>
+        <div class="wide"><label for="productName">작품 이름 (선택)</label><input id="productName" type="text" maxlength="40" placeholder="예: 바다를 담은 수학 패턴" style="width:100%;border:1px solid #d6e0ee;border-radius:9px;padding:10px 11px"></div>
+        <div class="wide"><label for="orgName">기관 · 브랜드 이름 (선택)</label><input id="orgName" type="text" maxlength="40" placeholder="예: 대전시청, 대전관광공사, 학교명" style="width:100%;border:1px solid #d6e0ee;border-radius:9px;padding:10px 11px"></div>
+        <div class="wide" style="border:1px solid #dfe7f2;border-radius:14px;padding:14px;background:#fbfdff">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+            <div style="flex:1 1 280px">
+              <label for="customImageInput" style="display:block;margin-bottom:6px">기관 엠블럼 · 원하는 이미지 업로드</label>
+              <input id="customImageInput" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="width:100%">
+              <div class="help" style="margin-top:8px">투명 배경 PNG를 권장합니다. 업로드한 이미지는 반복 패턴의 타일 안이나 굿즈 중앙 포인트로 활용할 수 있습니다.</div>
+            </div>
+            <div style="width:104px;text-align:center">
+              <div id="customImageThumbWrap" style="width:96px;height:96px;border:1px dashed #bfd0e3;border-radius:12px;background:#f7faff;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0 auto 6px"><span id="customImagePlaceholder" style="font-size:12px;color:#6d7d96;line-height:1.35;padding:10px">미리보기</span><img id="customImageThumb" alt="업로드 이미지 미리보기" style="display:none;max-width:100%;max-height:100%"></div>
+              <button class="btn small ghost" id="removeCustomImage" type="button">이미지 제거</button>
+            </div>
+          </div>
+          <div class="art-controls" style="margin-top:12px">
+            <div><label for="customImageMode">활용 방식</label><select id="customImageMode"><option value="none">사용 안 함</option><option value="tile">타일 속 반복 모티브</option><option value="product">굿즈 중앙 포인트</option><option value="both">둘 다 활용</option></select></div>
+            <div><label for="customImageScale">이미지 크기</label><input id="customImageScale" type="range" min="0.25" max="1.1" step="0.05" value="0.55"><div class="help">현재 크기: <span id="customImageScaleLabel">0.55</span></div></div>
+            <div><label for="customImageOpacity">이미지 투명도</label><input id="customImageOpacity" type="range" min="0.2" max="1" step="0.05" value="0.85"><div class="help">현재 투명도: <span id="customImageOpacityLabel">0.85</span></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="prompt-box"><div class="panel-head" style="margin-bottom:3px"><h3>AI 이미지 생성 프롬프트</h3><div class="seg" id="langGroup"><button class="active" data-lang="ko">한국어</button><button data-lang="en">English</button></div></div>
+        <p class="help" style="margin:3px 0 0">수학적 이음새 구조를 유지하도록 요청하는 문장이 포함됩니다.</p>
+        <textarea id="promptText" readonly aria-label="자동 생성된 AI 이미지 프롬프트"></textarea>
+        <div class="button-row" style="margin-top:8px"><button class="btn primary small" id="copyPrompt">📋 프롬프트 복사</button><button class="btn small" id="selectPrompt">텍스트 전체 선택</button></div>
+        <div class="help" id="copyFeedback" aria-live="polite">패턴 이미지와 함께 기관 엠블럼 원본도 외부 AI에 같이 업로드하면, 기존 구조를 유지하면서 기관 정체성이 드러나는 시안을 만들기 좋습니다.</div>
+      </div>
+      <p class="help">이 웹앱의 도형 조작·미리보기·저장은 인터넷 없이 작동합니다. 업로드한 기관 엠블럼은 로컬 브라우저 안에서만 사용되며 외부로 전송되지 않습니다. <strong>외부 생성형 AI의 실제 이미지 생성</strong>은 해당 서비스의 접속이 필요하며, AI가 만든 결과가 실제로 빈틈없이 맞물리는지는 다시 확인해야 합니다.</p>
+    </div></div>
+  </div>
+  <div class="stage-footer"><button class="btn" data-next="3">← 이전</button><button class="btn primary" id="startOver">처음부터 다시 탐구하기 ↻</button></div>
+</section>
+<footer class="credit">TESS LAB · 수학적 변환 → 대응변 설계 → 반복 패턴 → 미술·AI 디자인 · 외부 라이브러리 없이 동작</footer>
+</main>
+<script>
+'use strict';
+(() => {
+  const $ = id => document.getElementById(id);
+  const $$ = sel => [...document.querySelectorAll(sel)];
+  const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
+  const fmt = v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(Number(v));
+  const fmtDec = v => (Number(v)>=0?'+':'−')+Math.abs(Number(v)).toFixed(2);
+  const point = (x,y) => ({x,y});
+  const POLYS = [point(0,0),point(2,0),point(2,2),point(0,2)];
+  const COLORS = {
+    pastel:['#8bc5ee','#f6b9c4','#ffda96','#93dac5','#b2a8e7','#f6c58e'],
+    obang:['#d84b45','#edc967','#347db1','#f4eee3','#303b48'],
+    ocean:['#236c9a','#52b0c5','#83d4d5','#c1e8df','#497fae','#8fa8d9'],
+    sunset:['#ed806d','#eeb976','#e7a0b0','#935ca0','#f3d0a4','#b9798f'],
+    neon:['#04c7c1','#9b6dff','#f25dba','#f6c254','#4579ed','#73edc6'],
+    forest:['#315b3d','#4f8a54','#7cb36b','#b6cf7a','#dfe7b7','#7a5c3e'],
+    blossom:['#f3b4c8','#f8d7da','#f7c97b','#b9df93','#a8d4f2','#d6c2f0'],
+    earth:['#8c5a3c','#b47b52','#d2a679','#8c9f6d','#5f7a61','#d8c3a5'],
+    monotone:['#1f2933','#52606d','#7b8794','#9aa5b1','#cbd2d9','#f5f7fa'],
+    jewel:['#0f766e','#0b4f8a','#5b3f99','#b23a8a','#d97706','#1f6f50'],
+    candy:['#ff6fae','#ff9f68','#ffd166','#7bd389','#70a9ff','#b892ff']
+  };
+  const state = {step:1, operation:'translate', a:2,b:1,goal:'right',axis:'y0', angle:90,
+    bottom:.24,side:-.20,freq:1,neighbors:true, gridN:6,fillCount:1, palette:'pastel',showVector:true,
+    preview:'pattern',theme:'escher',motif:'fish',filter:'none',lang:'ko',workName:'',orgName:'',customImageMode:'none',customImageScale:.55,customImageOpacity:.85,customImageSrc:'',customImage:null,customImageName:''};
+
+  // Navigation
+  function go(step){
+    step=clamp(Number(step),1,4);state.step=step;
+    $$('.stage').forEach(e=>e.classList.toggle('active', e.id==='stage'+step));
+    $$('.nav-step').forEach(e=>{const active=Number(e.dataset.step)===step;e.classList.toggle('active',active);if(active)e.setAttribute('aria-current','step');else e.removeAttribute('aria-current')});
+    if(step===1){drawMove();if($('polygonDetails').open)drawPolygon()}
+    if(step===2)drawEditor();
+    if(step===3)drawPattern();
+    if(step===4)renderArt();
+    window.scrollTo({top:0,behavior:'auto'});
+  }
+  $$('.nav-step').forEach(b=>b.addEventListener('click',()=>go(b.dataset.step)));
+  $$('[data-next]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.next)));
+  $('startOver').addEventListener('click',()=>go(1));
+  function setActive(group,key,value){$$('#'+group+' button').forEach(b=>b.classList.toggle('active',b.dataset[key]===value))}
+
+  // Canvas primitives, all world coordinates in stage 1 are mathematical (+Y upward)
+  const mc=$('moveCanvas'),mctx=mc.getContext('2d');
+  const MOVE={ox:420,oy:385,s:65};
+  const worldToScreen=p=>point(MOVE.ox+p.x*MOVE.s,MOVE.oy-p.y*MOVE.s);
+  const screenToWorld=p=>point((p.x-MOVE.ox)/MOVE.s,(MOVE.oy-p.y)/MOVE.s);
+  function drawPoly(ctx,pts,opts={}){
+    ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();
+    if(opts.fill){ctx.fillStyle=opts.fill;ctx.fill()}
+    if(opts.stroke){ctx.strokeStyle=opts.stroke;ctx.lineWidth=opts.width||2;ctx.setLineDash(opts.dash||[]);ctx.stroke();ctx.setLineDash([])}
+  }
+  function roundedText(ctx,t,x,y,color,size=15,align='center'){
+    ctx.save();ctx.textAlign=align;ctx.font=`700 ${size}px 'Malgun Gothic',sans-serif`;ctx.fillStyle=color;ctx.fillText(t,x,y);ctx.restore();
+  }
+  function applyTransform(p){
+    if(state.operation==='translate')return point(p.x+state.a,p.y+state.b);
+    if(state.operation==='reflect'){
+      if(state.axis==='y0')return point(p.x,-p.y);
+      if(state.axis==='x0')return point(-p.x,p.y);
+      if(state.axis==='x2')return point(4-p.x,p.y);
+      if(state.axis==='y2')return point(p.x,4-p.y);
+      return point(p.y,p.x);
+    }
+    if(state.angle===90)return point(-p.y,p.x);
+    if(state.angle===180)return point(-p.x,-p.y);
+    return point(p.y,-p.x);
+  }
+  function changeMove(){
+    $('moveX').value=state.a;$('moveY').value=state.b;
+    $('moveXLabel').textContent=fmt(state.a);$('moveXNum').textContent=state.a;
+    $('moveYLabel').textContent=fmt(state.b);$('moveYNum').textContent=state.b;
+    $('translateControls').classList.toggle('hidden',state.operation!=='translate');
+    $('reflectControls').classList.toggle('hidden',state.operation!=='reflect');
+    $('rotateControls').classList.toggle('hidden',state.operation!=='rotate');
+    setActive('operationGroup','op',state.operation);setActive('goalGroup','goal',state.goal);
+    let formula,title,feedback,success=false;
+    if(state.operation==='translate'){
+      const term=(c,v)=>v===0?c:`${c}${v>=0?'+':'−'}${Math.abs(v)}`;
+      formula=`(x, y) → (${term('x',state.a)}, ${term('y',state.b)})`;
+      title='실시간 평행이동 좌표식';
+      const gx=state.goal==='right'?2:0,gy=state.goal==='up'?2:0;
+      success=state.a===gx&&state.b===gy;
+      feedback=success?`성공! (${gx}, ${gy})만큼 평행이동하니 겹치지 않고 한 변이 정확히 맞닿습니다.`:`도형을 ${state.goal==='right'?'오른쪽':'위쪽'} 목표 위치에 맞춰보세요. 두 점의 좌표 차이를 관찰하세요.`;
+    }else if(state.operation==='reflect'){
+      const formulas={y0:'(x, y) → (x, −y)',x0:'(x, y) → (−x, y)',x2:'(x, y) → (4−x, y)',y2:'(x, y) → (x, 4−y)',diag:'(x, y) → (y, x)'};
+      formula=formulas[state.axis];title='대칭이동 좌표식';
+      success=state.axis==='x2'||state.axis==='y2';
+      feedback=success?'대칭축을 변의 경계에 두면 도형이 맞닿습니다. 내부 화살표는 평행이동과 달리 반전됩니다.':'축을 바꾸면서 원본과 변환 도형의 대응점 좌표와 방향을 비교해보세요.';
+    }else{
+      formula=state.angle===90?'(x, y) → (−y, x)':state.angle===180?'(x, y) → (−x, −y)':'(x, y) → (y, −x)';
+      title='원점을 중심으로 하는 회전이동 좌표식';
+      feedback='원점으로부터의 거리는 같지만, 도형의 방향은 회전각만큼 달라집니다.';
+    }
+    const p=applyTransform(point(0,0));
+    $('moveFormulaTitle').textContent=title;$('moveFormula').textContent=formula;
+    $('movePoint').textContent=`A(0, 0) → A′(${p.x}, ${p.y})`;
+    $('moveFeedback').textContent=feedback;$('moveFeedback').classList.toggle('success',success);
+    drawMove();
+  }
+  function drawGrid(ctx){
+    ctx.save();ctx.fillStyle='#fbfcff';ctx.fillRect(0,0,mc.width,mc.height);
+    ctx.lineWidth=1;ctx.strokeStyle='#e4eaf4';
+    for(let x=-6;x<=7;x++){const v=worldToScreen(point(x,0)).x;ctx.beginPath();ctx.moveTo(v,0);ctx.lineTo(v,600);ctx.stroke()}
+    for(let y=-3;y<=5;y++){const v=worldToScreen(point(0,y)).y;ctx.beginPath();ctx.moveTo(0,v);ctx.lineTo(960,v);ctx.stroke()}
+    ctx.strokeStyle='#8794a9';ctx.lineWidth=2;ctx.beginPath();const o=worldToScreen(point(0,0));ctx.moveTo(0,o.y);ctx.lineTo(950,o.y);ctx.moveTo(o.x,595);ctx.lineTo(o.x,10);ctx.stroke();
+    ctx.fillStyle='#7b8ba4';ctx.font='13px Arial';ctx.textAlign='center';
+    for(let x=-6;x<=7;x++)if(x!==0){const v=worldToScreen(point(x,0)).x;if(v>15&&v<940)ctx.fillText(x,v,o.y+19)}
+    ctx.textAlign='right';for(let y=-3;y<=5;y++)if(y!==0){const v=worldToScreen(point(0,y)).y;if(v>12&&v<590)ctx.fillText(y,o.x-11,v+5)}
+    roundedText(ctx,'x',942,o.y-10,'#71839e',17);roundedText(ctx,'y',o.x+18,19,'#71839e',17);ctx.restore();
+  }
+  function drawArrowShape(ctx,transform,color){
+    const poly=[[.27,.78],[1.13,.78],[1.13,.48],[1.75,1],[1.13,1.52],[1.13,1.22],[.27,1.22]];
+    drawPoly(ctx,poly.map(([x,y])=>worldToScreen(transform(point(x,y)))),{fill:color});
+    // The small asymmetric dot is deliberately retained to reveal mirroring.
+    const dot=worldToScreen(transform(point(.44,1.53)));
+    ctx.beginPath();ctx.arc(dot.x,dot.y,5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+  }
+  function drawMove(){
+    const ctx=mctx;ctx.clearRect(0,0,mc.width,mc.height);drawGrid(ctx);
+    if(state.operation==='translate'){
+      const goal=state.goal==='right'?point(2,0):point(0,2);
+      drawPoly(ctx,POLYS.map(p=>worldToScreen(point(p.x+goal.x,p.y+goal.y))),{fill:'rgba(54,173,130,.07)',stroke:'#36ad82',width:3,dash:[9,7]});
+      const gp=worldToScreen(point(goal.x+1,goal.y+1));roundedText(ctx,'목표 위치',gp.x,gp.y+8,'#299e76',15);
+    }
+    if(state.operation==='reflect'){
+      ctx.save();ctx.strokeStyle='#ce8c35';ctx.lineWidth=3;ctx.setLineDash([11,7]);ctx.beginPath();
+      if(state.axis==='diag'){const p1=worldToScreen(point(-3,-3)),p2=worldToScreen(point(5,5));ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y)}
+      else if(state.axis==='x0'||state.axis==='x2'){const x=worldToScreen(point(state.axis==='x0'?0:2,0)).x;ctx.moveTo(x,15);ctx.lineTo(x,585)}
+      else{const y=worldToScreen(point(0,state.axis==='y0'?0:2)).y;ctx.moveTo(10,y);ctx.lineTo(950,y)}
+      ctx.stroke();ctx.restore();
+    }
+    const base=POLYS.map(worldToScreen);drawPoly(ctx,base,{fill:'rgba(81,159,234,.28)',stroke:'#387dc3',width:3});
+    drawArrowShape(ctx,p=>p,'#2b6fa8');
+    const transformed=POLYS.map(p=>worldToScreen(applyTransform(p)));
+    drawPoly(ctx,transformed,{fill:'rgba(246,170,83,.34)',stroke:'#dd862a',width:3});
+    drawArrowShape(ctx,applyTransform,'#b87325');
+    const A=worldToScreen(point(0,0)),B=worldToScreen(applyTransform(point(0,0)));
+    ctx.save();if(Math.hypot(A.x-B.x,A.y-B.y)>10){ctx.setLineDash([7,6]);ctx.strokeStyle='#be85a4';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke()}ctx.restore();
+    [[A,'#307bb8','A'],[B,'#db862d','A′']].forEach(([p,color,label])=>{ctx.beginPath();ctx.arc(p.x,p.y,6,0,2*Math.PI);ctx.fillStyle=color;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='white';ctx.stroke();roundedText(ctx,label,p.x+17,p.y-12,color,17,'left')});
+    roundedText(ctx,'원본 도형',worldToScreen(point(1,2.3)).x,worldToScreen(point(1,2.3)).y,'#3172aa',15);
+    const c=applyTransform(point(1,1));const cc=worldToScreen(c);if(Math.abs(cc.x-worldToScreen(point(1,1)).x)>110||Math.abs(cc.y-worldToScreen(point(1,1)).y)>110)roundedText(ctx,'변환 도형',cc.x,cc.y-78,'#b4712b',15);
+  }
+  let dragMove=false,dragOffset=point(1,1);
+  function canvasPoint(event,canvas){const r=canvas.getBoundingClientRect();return point((event.clientX-r.left)*canvas.width/r.width,(event.clientY-r.top)*canvas.height/r.height)}
+  mc.addEventListener('pointerdown',e=>{
+    if(state.operation!=='translate')return;
+    const p=screenToWorld(canvasPoint(e,mc));
+    if(p.x>=state.a&&p.x<=state.a+2&&p.y>=state.b&&p.y<=state.b+2){dragMove=true;dragOffset=point(p.x-state.a,p.y-state.b);mc.setPointerCapture(e.pointerId)}
+  });
+  mc.addEventListener('pointermove',e=>{
+    if(!dragMove||state.operation!=='translate')return;
+    const p=screenToWorld(canvasPoint(e,mc));
+    state.a=clamp(Math.round(p.x-dragOffset.x),-4,4);state.b=clamp(Math.round(p.y-dragOffset.y),-3,3);changeMove();
+  });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(k=>mc.addEventListener(k,()=>dragMove=false));
+  $('operationGroup').addEventListener('click',e=>{const b=e.target.closest('button[data-op]');if(!b)return;state.operation=b.dataset.op;changeMove()});
+  $('goalGroup').addEventListener('click',e=>{const b=e.target.closest('button[data-goal]');if(!b)return;state.goal=b.dataset.goal;changeMove()});
+  $('moveX').addEventListener('input',e=>{state.a=+e.target.value;changeMove()});
+  $('moveY').addEventListener('input',e=>{state.b=+e.target.value;changeMove()});
+  $('reflectAxis').addEventListener('change',e=>{state.axis=e.target.value;changeMove()});
+  $('rotateAngle').addEventListener('change',e=>{state.angle=+e.target.value;changeMove()});
+  $('hintMove').addEventListener('click',()=>{const goal=state.goal==='right'?'x방향으로 2, y방향으로 0':'x방향으로 0, y방향으로 2';$('moveFeedback').textContent=`힌트: 정사각형의 한 변은 2입니다. ${goal}만큼 옮겨보세요.`;$('moveFeedback').classList.remove('success')});
+  $('resetMove').addEventListener('click',()=>{state.a=0;state.b=0;changeMove()});
+
+  // Optional: visualize regular polygons incident on a single vertex.
+  const polyCanvas=$('polygonCanvas'),polyCtx=polyCanvas.getContext('2d');
+  function drawPolygon(){
+    const n=+$('polygonType').value;const angle=180*(n-2)/n;const count=Math.floor(360/angle+1e-8);const gap=360-count*angle;
+    $('polygonInfo').textContent=`한 내각 ${angle.toFixed(0)}° × ${count}개 = ${Math.round(count*angle)}°. ${gap>0.001?`빈틈 ${Math.round(gap)}°가 남습니다.`:'한 꼭짓점 주위를 정확히 채웁니다.'}`;
+    const c=polyCtx;c.clearRect(0,0,640,310);c.fillStyle='#fbfcff';c.fillRect(0,0,640,310);
+    const ox=320,oy=155,s=n===3?90:n===4?83:n===5?80:75;const ext=2*Math.PI/n,interior=angle*Math.PI/180;
+    for(let k=0;k<count;k++){
+      const start=-Math.PI/2 + k*interior;
+      const pts=[point(ox,oy)];let x=ox,y=oy;
+      for(let m=0;m<n-1;m++){x+=s*Math.cos(start+m*ext);y+=s*Math.sin(start+m*ext);pts.push(point(x,y))}
+      drawPoly(c,pts,{fill:COLORS.pastel[k%COLORS.pastel.length],stroke:'#637e9b',width:2});
+    }
+    c.beginPath();c.arc(ox,oy,5,0,2*Math.PI);c.fillStyle='#2e56ad';c.fill();
+    if(gap>0.001){c.beginPath();c.moveTo(ox,oy);c.arc(ox,oy,53,-Math.PI/2+count*interior, -Math.PI/2+2*Math.PI);c.closePath();c.fillStyle='rgba(231,83,78,.24)';c.fill();}
+    roundedText(c,gap>0.001?`${gap.toFixed(0)}° 빈틈`:`${count}개 × ${angle}° = 360°`,320,295,gap>0.001?'#b24b40':'#387b69',17);
+  }
+  $('polygonType').addEventListener('change',drawPolygon);
+  $('polygonDetails').addEventListener('toggle',()=>{if($('polygonDetails').open)drawPolygon()});
+
+  // Paired opposite edges. Local square is [0,2] x [0,2].
+  // Bottom curve h(t) is translated by (0,2) to get top; left curve v(t) is translated by (2,0) to get right.
+  // This matching is exact for EVERY t, regardless of amplitude or selected wiggle count.
+  const editor=$('editCanvas'),ec=editor.getContext('2d');
+  function wave(t,amplitude,frequency){
+    const detail=.82+.18*Math.cos(2*Math.PI*(frequency-1)*(t-.5));
+    return amplitude*Math.sin(Math.PI*t)*detail;
+  }
+  function makeTilePath(ctx,left,top,sidePx,b=state.bottom,r=state.side,f=state.freq){
+    const S=sidePx/2;
+    const X=x=>left+x*S,Y=y=>top+(2-y)*S;
+    const steps=64;
+    ctx.beginPath();
+    for(let q=0;q<=steps;q++){const t=q/steps;const x=2*t,y=wave(t,b,f);q===0?ctx.moveTo(X(x),Y(y)):ctx.lineTo(X(x),Y(y))}
+    for(let q=0;q<=steps;q++){const t=q/steps;ctx.lineTo(X(2+wave(t,r,f)),Y(2*t))}
+    for(let q=steps;q>=0;q--){const t=q/steps;ctx.lineTo(X(2*t),Y(2+wave(t,b,f)))}
+    for(let q=steps;q>=0;q--){const t=q/steps;ctx.lineTo(X(wave(t,r,f)),Y(2*t))}
+    ctx.closePath();
+  }
+  function drawTile(ctx,left,top,sidePx,fill,opts={}){
+    ctx.save();makeTilePath(ctx,left,top,sidePx,opts.bottom??state.bottom,opts.side??state.side,opts.freq??state.freq);
+    ctx.fillStyle=fill;ctx.globalAlpha=opts.alpha??1;ctx.fill();ctx.globalAlpha=1;
+    ctx.strokeStyle=opts.stroke??'rgba(41,70,113,.65)';ctx.lineWidth=opts.line??1.3;ctx.stroke();
+    if(opts.motif&&opts.motif!=='none'){
+      ctx.save();makeTilePath(ctx,left,top,sidePx,opts.bottom??state.bottom,opts.side??state.side,opts.freq??state.freq);ctx.clip();
+      drawMotif(ctx,left+sidePx/2,top+sidePx/2,sidePx,opts.motif,opts.motifColor??'rgba(255,255,255,.73)');ctx.restore();
+    }
+    if(opts.customImage){
+      ctx.save();makeTilePath(ctx,left,top,sidePx,opts.bottom??state.bottom,opts.side??state.side,opts.freq??state.freq);ctx.clip();
+      drawCustomImage(ctx,left+sidePx/2,top+sidePx/2,opts.customScale??(sidePx*.55),opts.customImage,opts.customOpacity??.85);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  function drawCustomImage(ctx,cx,cy,drawSize,img,opacity=.85){
+    if(!img)return;
+    const iw=img.naturalWidth||img.width||1, ih=img.naturalHeight||img.height||1;
+    const scale=Math.min(drawSize/iw,drawSize/ih);
+    const w=iw*scale,h=ih*scale;
+    ctx.save();ctx.globalAlpha=opacity;ctx.imageSmoothingQuality='high';ctx.drawImage(img,cx-w/2,cy-h/2,w,h);ctx.restore();
+  }
+  function drawControl(ctx,x,y,color,minor=false){
+    ctx.save();ctx.beginPath();ctx.arc(x,y,minor?7:12,0,Math.PI*2);ctx.fillStyle=minor?'#fff':color;ctx.fill();ctx.lineWidth=minor?3:4;ctx.strokeStyle=minor?color:'#fff';ctx.stroke();if(!minor){ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='white';ctx.fill()}ctx.restore();
+  }
+  const EDIT={cx:480,cy:300,sidePx:234};
+  const editLeft=EDIT.cx-EDIT.sidePx/2,editTop=EDIT.cy-EDIT.sidePx/2;
+  function handles(){const S=EDIT.sidePx/2;return{
+    bottom:point(EDIT.cx,editTop+EDIT.sidePx-wave(.5,state.bottom,state.freq)*S),
+    top:point(EDIT.cx,editTop-wave(.5,state.bottom,state.freq)*S),
+    right:point(editLeft+EDIT.sidePx+wave(.5,state.side,state.freq)*S,EDIT.cy),
+    left:point(editLeft+wave(.5,state.side,state.freq)*S,EDIT.cy)
+  }}
+  function drawEditor(){
+    ec.clearRect(0,0,editor.width,editor.height);ec.fillStyle='#fafcff';ec.fillRect(0,0,960,600);
+    ec.lineWidth=1;ec.strokeStyle='#eaf0f7';for(let x=0;x<960;x+=28){ec.beginPath();ec.moveTo(x,0);ec.lineTo(x,600);ec.stroke()}for(let y=0;y<600;y+=28){ec.beginPath();ec.moveTo(0,y);ec.lineTo(960,y);ec.stroke()}
+    if(state.neighbors){
+      for(let i=-2;i<=2;i++)for(let j=-1;j<=1;j++){
+        if(i===0&&j===0)continue;
+        drawTile(ec,editLeft+i*EDIT.sidePx,editTop+j*EDIT.sidePx,EDIT.sidePx,COLORS.pastel[(i+j+13)%6],{alpha:.26,stroke:'#a4b8d0',line:1.5});
+      }
+      ec.save();ec.strokeStyle='#527ac5';ec.lineWidth=3;ec.setLineDash([7,7]);
+      // Translation vectors: central tile center -> neighboring tile center.
+      [[EDIT.cx+EDIT.sidePx,EDIT.cy],[EDIT.cx,EDIT.cy-EDIT.sidePx]].forEach(([x,y])=>{ec.beginPath();ec.moveTo(EDIT.cx,EDIT.cy);ec.lineTo(x,y);ec.stroke()});
+      ec.restore();roundedText(ec,'(2, 0)',EDIT.cx+EDIT.sidePx/2,EDIT.cy-12,'#4464aa',16);roundedText(ec,'(0, 2)',EDIT.cx+55,EDIT.cy-EDIT.sidePx/2,'#4464aa',16);
+    }
+    drawTile(ec,editLeft,editTop,EDIT.sidePx,'#d8e8ff',{stroke:'#305fbd',line:4});
+    const h=handles();
+    drawControl(ec,h.bottom.x,h.bottom.y,'#e9953d');drawControl(ec,h.top.x,h.top.y,'#e9953d',true);
+    drawControl(ec,h.right.x,h.right.y,'#4567d8');drawControl(ec,h.left.x,h.left.y,'#4567d8',true);
+    roundedText(ec,'아래·위 변 동시 변형',EDIT.cx,Math.min(580,h.bottom.y+42),'#bd7328',17);
+    roundedText(ec,'좌우 연결',Math.min(915,h.right.x+80),EDIT.cy-24,'#3e62b8',16);
+    roundedText(ec,'대응점',EDIT.cx,Math.max(25,h.top.y-17),'#bf863a',14);
+    ec.save();ec.setLineDash([5,7]);ec.strokeStyle='#9ab2d1';ec.lineWidth=2;ec.strokeRect(editLeft,editTop,EDIT.sidePx,EDIT.sidePx);ec.restore();
+    $('bottomAmpLabel').textContent=fmtDec(state.bottom);$('sideAmpLabel').textContent=fmtDec(state.side);$('waveFreqLabel').textContent=state.freq;
+    $('bottomAmp').value=state.bottom;$('sideAmp').value=state.side;$('waveFreq').value=state.freq;
+  }
+  let dragHandle=null;
+  editor.addEventListener('pointerdown',e=>{
+    const p=canvasPoint(e,editor),h=handles();
+    const d1=Math.hypot(p.x-h.bottom.x,p.y-h.bottom.y),d2=Math.hypot(p.x-h.right.x,p.y-h.right.y);
+    dragHandle=d1<=26&&d1<=d2?'bottom':d2<=26?'side':null;
+    if(dragHandle)editor.setPointerCapture(e.pointerId);
+  });
+  editor.addEventListener('pointermove',e=>{
+    if(!dragHandle)return;
+    const p=canvasPoint(e,editor),S=EDIT.sidePx/2;
+    if(dragHandle==='bottom')state.bottom=Math.round(clamp((editTop+EDIT.sidePx-p.y)/S,-.4,.4)*100)/100;
+    else state.side=Math.round(clamp((p.x-(editLeft+EDIT.sidePx))/S,-.4,.4)*100)/100;
+    drawEditor();
+  });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(k=>editor.addEventListener(k,()=>dragHandle=null));
+  $('bottomAmp').addEventListener('input',e=>{state.bottom=+e.target.value;drawEditor()});
+  $('sideAmp').addEventListener('input',e=>{state.side=+e.target.value;drawEditor()});
+  $('waveFreq').addEventListener('input',e=>{state.freq=+e.target.value;drawEditor()});
+  $('showNeighbors').addEventListener('change',e=>{state.neighbors=e.target.checked;drawEditor()});
+  $$('[data-preset]').forEach(b=>b.addEventListener('click',()=>{
+    const v=b.dataset.preset;if(v==='straight'){state.bottom=0;state.side=0;state.freq=1}
+    if(v==='wave'){state.bottom=.24;state.side=-.20;state.freq=1}
+    if(v==='bold'){state.bottom=-.34;state.side=.31;state.freq=3}
+    drawEditor();
+  }));
+
+  // Motifs are self-contained vector drawings; external images or services are not needed.
+  function drawMotif(ctx,cx,cy,side,which,fill){
+    const S=side/2;ctx.save();ctx.translate(cx,cy);ctx.scale(S,S);ctx.fillStyle=fill;ctx.strokeStyle=fill;ctx.lineWidth=.055;ctx.lineCap='round';ctx.lineJoin='round';
+    if(which==='fish'){
+      ctx.beginPath();ctx.ellipse(.02,0,.48,.29,0,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.moveTo(-.35,0);ctx.lineTo(-.79,-.38);ctx.lineTo(-.79,.38);ctx.closePath();ctx.fill();
+      ctx.beginPath();ctx.moveTo(-.05,-.19);ctx.lineTo(.1,-.42);ctx.lineTo(.23,-.19);ctx.closePath();ctx.fill();
+      ctx.fillStyle='rgba(30,62,89,.75)';ctx.beginPath();ctx.arc(.34,-.07,.055,0,Math.PI*2);ctx.fill();
+    }else if(which==='bird'){
+      ctx.beginPath();ctx.moveTo(-.77,.26);ctx.bezierCurveTo(-.18,-.5,.07,-.2,.19,-.11);ctx.bezierCurveTo(.55,-.47,.68,-.19,.46,.07);ctx.lineTo(.73,.05);ctx.lineTo(.45,.24);ctx.bezierCurveTo(.03,.63,-.3,.41,-.77,.26);ctx.closePath();ctx.fill();
+      ctx.beginPath();ctx.moveTo(-.15,.04);ctx.quadraticCurveTo(-.52,-.45,-.2,-.56);ctx.quadraticCurveTo(.26,-.24,.1,.24);ctx.closePath();ctx.fillStyle='rgba(45,85,110,.24)';ctx.fill();
+    }else if(which==='flower'){
+      for(let k=0;k<6;k++){ctx.save();ctx.rotate(k*Math.PI/3);ctx.beginPath();ctx.ellipse(0,-.33,.17,.34,0,0,Math.PI*2);ctx.fill();ctx.restore()}
+      ctx.beginPath();ctx.arc(0,0,.17,0,Math.PI*2);ctx.fillStyle='rgba(223,146,64,.8)';ctx.fill();
+      ctx.beginPath();ctx.moveTo(.47,.35);ctx.quadraticCurveTo(.77,.15,.69,-.15);ctx.quadraticCurveTo(.27,.02,.47,.35);ctx.fillStyle=fill;ctx.fill();
+    }else if(which==='lizard'||which==='dragon'){
+      ctx.beginPath();ctx.ellipse(.03,-.02,.37,.15,-.13,0,2*Math.PI);ctx.fill();
+      ctx.beginPath();ctx.ellipse(.45,-.05,.19,.14,.2,0,2*Math.PI);ctx.fill();
+      ctx.beginPath();ctx.moveTo(-.32,.02);ctx.bezierCurveTo(-.62,.23,-.8,.18,-.72,-.23);ctx.bezierCurveTo(-.55,-.09,-.5,.01,-.32,.02);ctx.fill();
+      for(const [a,b] of [[-.05,-.1],[.23,-.1],[-.05,.13],[.22,.13]]){
+        ctx.beginPath();ctx.moveTo(a,b);ctx.lineTo(a+(b<0?-.23:.17),b+(b<0?-.28:.30));ctx.lineTo(a+(b<0?-.32:.09),b+(b<0?-.25:.39));ctx.stroke();
+      }
+      if(which==='dragon'){for(let k=0;k<3;k++){ctx.beginPath();ctx.moveTo(-.25+k*.2,-.13);ctx.lineTo(-.12+k*.2,-.39);ctx.lineTo(.02+k*.2,-.13);ctx.closePath();ctx.fill()}}
+      ctx.fillStyle='rgba(24,61,83,.85)';ctx.beginPath();ctx.arc(.52,-.1,.038,0,2*Math.PI);ctx.fill();
+    }else if(which==='wave'){
+      for(let j=-1;j<=1;j++){ctx.beginPath();for(let i=0;i<=30;i++){const x=-.85+1.7*i/30,y=j*.28+.095*Math.sin(i/30*Math.PI*4);i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke()}
+      ctx.beginPath();ctx.arc(.52,-.48,.12,0,2*Math.PI);ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // Fill stage, starting from the center and expanding outward.
+  const pc=$('patternCanvas'),pctx=pc.getContext('2d');
+  const maxTiles=()=>state.gridN*state.gridN;
+  function placementOrder(N){
+    // The very first tile is at (i,j)=(0,0) in the bottom-left corner.
+    // One more click adds the next translation in the +x direction; rows rise by +y.
+    const arr=[];
+    for(let j=0;j<N;j++)for(let i=0;i<N;i++)arr.push({row:N-1-j,col:i});
+    return arr;
+  }
+  function drawPattern(){
+    const N=state.gridN,order=placementOrder(N),count=clamp(state.fillCount,1,maxTiles());state.fillCount=count;
+    const side=Math.min((pc.width-90)/N,(pc.height-75)/N),startX=(pc.width-N*side)/2,startY=(pc.height-N*side)/2;
+    pctx.clearRect(0,0,pc.width,pc.height);pctx.fillStyle='#f9fbff';pctx.fillRect(0,0,pc.width,pc.height);
+    pctx.fillStyle='#d3deee';pctx.font='14px sans-serif';pctx.fillText('한 타일의 가로·세로 길이 = 2',28,32);
+    const filled=new Set(order.slice(0,count).map(({row,col})=>row+':'+col));
+    for(let row=0;row<N;row++)for(let col=0;col<N;col++){
+      const x=startX+col*side,y=startY+row*side;
+      if(filled.has(row+':'+col)){
+        const color=COLORS[state.palette][(col*2+row*3)%COLORS[state.palette].length];
+        drawTile(pctx,x,y,side,color,{stroke:'rgba(37,67,103,.5)',line:1.5});
+      }else{
+        pctx.save();makeTilePath(pctx,x,y,side);pctx.fillStyle='rgba(231,237,247,.38)';pctx.fill();pctx.setLineDash([5,6]);pctx.strokeStyle='#c4cfdf';pctx.lineWidth=1;pctx.stroke();pctx.restore();
+      }
+    }
+    const last=order[count-1],i=last.col,j=N-1-last.row;
+    if(state.showVector){
+      const lastX=startX+(last.col+.5)*side,lastY=startY+(last.row+.5)*side;
+      const anchorX=startX+side/2,anchorY=startY+(N-.5)*side;
+      pctx.save();pctx.lineWidth=3;pctx.strokeStyle='#ac5e35';pctx.setLineDash([9,6]);pctx.beginPath();pctx.moveTo(anchorX,anchorY);pctx.lineTo(lastX,lastY);pctx.stroke();pctx.setLineDash([]);
+      pctx.beginPath();pctx.arc(lastX,lastY,7,0,2*Math.PI);pctx.fillStyle='#e37e37';pctx.fill();pctx.strokeStyle='#fff';pctx.lineWidth=2;pctx.stroke();
+      pctx.restore();roundedText(pctx,`(${2*i}, ${2*j})`,clamp(lastX,70,890),Math.max(29,lastY-18),'#9d552c',16);
+    }
+    roundedText(pctx,'기준 타일',startX+side/2,Math.min(600,startY+N*side+21),'#3a69a0',14);
+    $('tileCounter').textContent=`${count} / ${N*N}개 배치`;
+    $('fillProgress').style.width=(count/(N*N)*100)+'%';
+    $('lastVector').textContent=`(${2*i}, ${2*j})`;
+    $('gridSizeLabel').textContent=`${N} × ${N}`;
+    const done=count===N*N;$('patternFeedback').textContent=done?'완성! 모든 타일은 정수배의 평행이동으로 복제되었습니다. 미술 탭에서 이 구조를 디자인에 활용하세요.':`현재 ${count}개를 배치했습니다. 목표는 ${N*N}개입니다. 이동 벡터의 공통 규칙을 찾아보세요.`;
+    $('patternFeedback').classList.toggle('success',done);
+    $('addOne').disabled=done;$('addRow').disabled=done;$('fillAll').disabled=done;
+  }
+  $('gridSize').addEventListener('input',e=>{state.gridN=+e.target.value;state.fillCount=1;drawPattern()});
+  $('addOne').addEventListener('click',()=>{state.fillCount=Math.min(maxTiles(),state.fillCount+1);drawPattern()});
+  $('addRow').addEventListener('click',()=>{state.fillCount=Math.min(maxTiles(),state.fillCount+state.gridN);drawPattern()});
+  $('fillAll').addEventListener('click',()=>{state.fillCount=maxTiles();drawPattern()});
+  $('clearAll').addEventListener('click',()=>{state.fillCount=1;drawPattern()});
+  $('showVector').addEventListener('change',e=>{state.showVector=e.target.checked;drawPattern()});
+  $('patternPalette').addEventListener('change',e=>{state.palette=e.target.value;$('artPalette').value=state.palette;renderPalettePreview('pattern',state.palette);renderPalettePreview('art',state.palette);drawPattern();renderArt()});
+  $('artPalette').addEventListener('change',e=>{state.palette=e.target.value;$('patternPalette').value=state.palette;renderPalettePreview('pattern',state.palette);renderPalettePreview('art',state.palette);drawPattern();renderArt()});
+
+  // Art and product mockups. Source work is rendered on canvas, not through external AI.
+  const ac=$('artCanvas'),actx=ac.getContext('2d');
+  const filters={none:'none',woodcut:'sepia(.6) contrast(1.2) brightness(.98)',glass:'saturate(1.65) contrast(1.3)',night:'hue-rotate(35deg) saturate(2.1) contrast(1.12)',mono:'grayscale(1) contrast(1.6)',soft:'saturate(.78) brightness(1.08) contrast(.90)'};
+  function patternImage(w,h,side){
+    const out=document.createElement('canvas');out.width=w;out.height=h;const ctx=out.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+    let row=0;for(let y=0;y<h+side*2;y+=side,row++){
+      let col=0;for(let x=0;x<w+side*2;x+=side,col++){
+        const pal=COLORS[state.palette],fill=pal[(col*2+row*3)%pal.length];
+        const dark=['#394351','#236c9a','#935ca0'].includes(fill);
+        drawTile(ctx,x,y,side,fill,{stroke:'rgba(40,51,76,.57)',line:Math.max(.8,side*.011),motif:state.motif,motifColor:dark?'rgba(255,255,255,.78)':'rgba(255,255,255,.74)',customImage:(state.customImage && (state.customImageMode==='tile' || state.customImageMode==='both'))?state.customImage:null,customScale:side*state.customImageScale,customOpacity:state.customImageOpacity});
+      }
+    }
+    if(state.filter==='none')return out;
+    const filtered=document.createElement('canvas');filtered.width=w;filtered.height=h;
+    const fctx=filtered.getContext('2d');fctx.filter=filters[state.filter];fctx.drawImage(out,0,0);fctx.filter='none';
+    return filtered;
+  }
+  function gradientBG(ctx,w,h){
+    let gr=ctx.createLinearGradient(0,0,w,h);gr.addColorStop(0,'#fafbff');gr.addColorStop(1,'#e8edf7');ctx.fillStyle=gr;ctx.fillRect(0,0,w,h);
+  }
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+  function renderArt(){
+    const ctx=actx,w=ac.width,h=ac.height;ctx.clearRect(0,0,w,h);
+    const img=patternImage(960,960,105);
+    if(state.preview==='pattern'){ctx.drawImage(img,0,0,960,620,0,0,960,620)}
+    else if(state.preview==='tote'){
+      gradientBG(ctx,w,h);ctx.save();ctx.shadowColor='rgba(50,62,93,.19)';ctx.shadowBlur=28;ctx.shadowOffsetY=13;
+      roundRect(ctx,290,170,380,360,22);ctx.fillStyle='#efe7d9';ctx.fill();ctx.restore();
+      ctx.save();ctx.lineCap='round';ctx.strokeStyle='#c8bcab';ctx.lineWidth=26;ctx.beginPath();ctx.moveTo(385,192);ctx.bezierCurveTo(385,12,575,12,575,192);ctx.stroke();ctx.lineWidth=18;ctx.strokeStyle='#ebe1d2';ctx.stroke();ctx.restore();
+      ctx.save();roundRect(ctx,305,187,350,325,16);ctx.clip();ctx.drawImage(img,0,0,700,650,305,187,350,325);ctx.restore();
+      if(state.customImage && (state.customImageMode==='product' || state.customImageMode==='both')){
+        ctx.save();roundRect(ctx,388,245,184,120,18);ctx.fillStyle='rgba(255,255,255,.82)';ctx.fill();ctx.strokeStyle='rgba(201,210,221,.95)';ctx.lineWidth=1.5;ctx.stroke();
+        drawCustomImage(ctx,480,305,120*state.customImageScale+70,state.customImage,Math.min(1,state.customImageOpacity+.05));ctx.restore();
+      }
+      ctx.strokeStyle='#d0c6b6';ctx.lineWidth=2;roundRect(ctx,290,170,380,360,22);ctx.stroke();
+      roundedText(ctx,(state.orgName||'PATTERN')+' TOTE BAG',480,581,'#6d7d96',16);
+    }else{
+      gradientBG(ctx,w,h);ctx.save();ctx.shadowColor='rgba(38,61,105,.23)';ctx.shadowBlur=28;ctx.shadowOffsetX=15;ctx.shadowOffsetY=12;ctx.fillStyle='#fff';roundRect(ctx,290,80,380,460,12);ctx.fill();ctx.restore();
+      ctx.save();roundRect(ctx,290,80,380,460,12);ctx.clip();ctx.drawImage(img,0,0,760,920,290,80,380,460);ctx.restore();
+      ctx.fillStyle='#202d44';ctx.fillRect(290,80,28,460);
+      for(let y=116;y<510;y+=38){ctx.fillStyle='#ced6df';ctx.beginPath();ctx.arc(310,y,6,0,2*Math.PI);ctx.fill();ctx.strokeStyle='#8796a7';ctx.lineWidth=2;ctx.beginPath();ctx.arc(297,y,13,-1.5,1.5);ctx.stroke()}
+      if(state.customImage && (state.customImageMode==='product' || state.customImageMode==='both')){
+        ctx.save();roundRect(ctx,390,165,180,118,16);ctx.fillStyle='rgba(255,255,255,.83)';ctx.fill();ctx.strokeStyle='rgba(209,218,230,.96)';ctx.lineWidth=1.5;ctx.stroke();
+        drawCustomImage(ctx,480,224,112*state.customImageScale+68,state.customImage,Math.min(1,state.customImageOpacity+.05));ctx.restore();
+      }
+      if(state.orgName){roundedText(ctx,state.orgName.toUpperCase(),480,462,'rgba(32,45,68,.82)',19)}
+      roundedText(ctx,(state.orgName||'TESSELLATION')+' NOTEBOOK',480,581,'#6d7d96',16);
+    }
+    updatePrompt();
+  }
+  const themes={
+    escher:['에셔 판화에서 영감을 받은 섬세한 반복 선묘','intricate Escher-inspired printmaking line art'],
+    dancheong:['한국 단청의 오방색과 민화적 장식','Korean dancheong with five-direction color harmony and minhwa decoration'],
+    stained:['스테인드글라스의 빛과 선명한 윤곽선','luminous stained glass with clear dark contours'],
+    cyberpunk:['사이버펑크 네온 그래픽','cyberpunk neon graphic art'],
+    watercolor:['은은한 파스텔 수채화와 종이 질감','soft pastel watercolor with subtle paper texture'],
+    botanical:['식물의 유기적 선과 보타니컬 일러스트','organic botanical illustration and leaf detailing']
+  };
+  const motifs={fish:['물고기','fish'],bird:['새','birds'],flower:['꽃과 잎','flowers and leaves'],wave:['파도와 구름','waves and clouds'],none:['기하학적 색면','pure geometric color fields']};
+  const paletteNames={pastel:['파스텔 색조','pastel'],obang:['한국 전통 오방색','Korean obangsaek'],ocean:['푸른 바다 계열','oceanic blues'],sunset:['노을빛 계열','sunset'],neon:['네온 색조','neon'],forest:['숲과 자연 계열','forest and natural greens'],blossom:['봄꽃 계열','spring blossom palette'],earth:['어스톤 계열','earth tones'],monotone:['모노톤 계열','monotone grayscale'],jewel:['보석빛 계열','jewel tones'],candy:['캔디 팝 계열','candy pop palette']};
+  const paletteLabels={pastel:'파스텔 조합',obang:'한국 전통 오방색',ocean:'푸른 바다',sunset:'노을빛',neon:'네온',forest:'숲과 자연',blossom:'봄꽃',earth:'어스톤',monotone:'모노톤',jewel:'보석빛',candy:'캔디 팝'};
+  function renderPalettePreview(prefix,paletteKey){
+    const wrap=$(prefix+'PaletteChips');
+    const title=$(prefix+'PaletteName');
+    if(!wrap||!title||!COLORS[paletteKey]) return;
+    title.textContent=paletteLabels[paletteKey]||paletteKey;
+    wrap.innerHTML='';
+    COLORS[paletteKey].forEach(color=>{
+      const chip=document.createElement('span');
+      chip.className='palette-chip';
+      chip.style.background=color;
+      chip.title=color;
+      wrap.appendChild(chip);
+    });
+  }
+
+  function updatePrompt(){
+    const title=state.workName.trim();
+    const org=state.orgName.trim();
+    const hasCustom=!!state.customImage && state.customImageMode!=='none';
+    const customUseKo = state.customImageMode==='tile' ? '업로드한 기관 엠블럼/이미지를 반복 타일 내부 모티브로 반영' : state.customImageMode==='product' ? '업로드한 기관 엠블럼/이미지를 굿즈의 중심 포인트로 반영' : state.customImageMode==='both' ? '업로드한 기관 엠블럼/이미지를 타일 내부와 굿즈 중심 포인트에 함께 반영' : '업로드 이미지 사용 없음';
+    const customUseEn = state.customImageMode==='tile' ? 'use the uploaded emblem/image as a repeated motif inside each tile' : state.customImageMode==='product' ? 'use the uploaded emblem/image as a central branding element on the product mockup' : state.customImageMode==='both' ? 'use the uploaded emblem/image both inside the tiles and as a central branding element on the product mockup' : 'no uploaded image';
+    let value;
+    if(state.lang==='ko'){
+      value=`${title?`작품 제목: ${title}. `:''}${org?`관련 기관/브랜드: ${org}. `:''}수학적 테셀레이션 패턴 디자인. 한 변의 길이가 2인 사각형을 바탕으로 위·아래 대응변은 (0, 2), 좌·우 대응변은 (2, 0)의 평행이동 관계를 만족하는 변형 타일을 만들고, (2i, 2j)만큼 반복 평행이동하여 빈틈과 겹침이 없는 정교한 연결 패턴을 구성해 주세요. 모티브: ${motifs[state.motif][0]}. 화풍: ${themes[state.theme][0]}. 색채: ${paletteNames[state.palette][0]}. ${hasCustom?`${customUseKo}. 업로드한 참고 이미지의 핵심 형태와 상징성을 유지해 주세요. `:''}타일의 연결 경계와 전체 반복 구조를 최대한 정확히 유지하고, 자연스럽게 이어지는 반복무늬, 높은 완성도의 제품용 패턴, 정돈된 선, 고해상도로 표현해 주세요. 참고 이미지가 있다면 원본 도형의 외곽과 배치 규칙을 우선 보존하고, 업로드한 기관 엠블럼이 있다면 함께 참고하여 기관 정체성이 드러나는 굿즈 시안을 제안해 주세요.`;
+    }else{
+      value=`${title?`Artwork title: ${title}. `:''}${org?`Related institution/brand: ${org}. `:''}Design a seamless mathematical tessellation pattern. Start from a deformed quadrilateral tile based on a square of side length 2. Its top and bottom corresponding edges must be translations by (0, 2), and its left and right corresponding edges must be translations by (2, 0). Repeat the tile using translation vectors (2i, 2j), with no gaps or overlaps. Motif: ${motifs[state.motif][1]}. Artistic style: ${themes[state.theme][1]}. Palette: ${paletteNames[state.palette][1]}. ${hasCustom?`${customUseEn}. Preserve the core shape and symbolic identity of the uploaded emblem/image. `:''}Preserve the exact interlocking boundaries and the geometric repetition rule, with refined illustration and print-ready resolution. If a reference pattern image is supplied, prioritize its tile silhouette and consistent arrangement. If an institution emblem is also supplied, incorporate it so the final product mockup clearly reflects the institution identity.`;
+    }
+    $('promptText').value=value;
+  }
+  $$('#previewGroup button').forEach(b=>b.addEventListener('click',()=>{state.preview=b.dataset.preview;setActive('previewGroup','preview',state.preview);renderArt()}));
+  $$('#langGroup button').forEach(b=>b.addEventListener('click',()=>{state.lang=b.dataset.lang;setActive('langGroup','lang',state.lang);updatePrompt()}));
+  const themeDefaults={escher:['monotone','woodcut'],dancheong:['obang','glass'],stained:['jewel','glass'],cyberpunk:['neon','night'],watercolor:['blossom','soft'],botanical:['forest','soft']};
+  $('artTheme').addEventListener('change',e=>{
+    state.theme=e.target.value;
+    [state.palette,state.filter]=themeDefaults[state.theme];
+    $('artPalette').value=state.palette;$('patternPalette').value=state.palette;$('artFilter').value=state.filter;
+    renderPalettePreview('pattern',state.palette);renderPalettePreview('art',state.palette);
+    drawPattern();renderArt();
+  });
+  [['motif','motif'],['artFilter','filter']].forEach(([id,key])=>$(id).addEventListener('change',e=>{state[key]=e.target.value;renderArt()}));
+  $('productName').addEventListener('input',e=>{state.workName=e.target.value;updatePrompt()});
+  $('orgName').addEventListener('input',e=>{state.orgName=e.target.value;renderArt()});
+  $('customImageScale').addEventListener('input',e=>{state.customImageScale=+e.target.value;$('customImageScaleLabel').textContent=(+e.target.value).toFixed(2);renderArt()});
+  $('customImageOpacity').addEventListener('input',e=>{state.customImageOpacity=+e.target.value;$('customImageOpacityLabel').textContent=(+e.target.value).toFixed(2);renderArt()});
+  $('customImageMode').addEventListener('change',e=>{state.customImageMode=e.target.value;renderArt()});
+  $('customImageInput').addEventListener('change',e=>{
+    const file=e.target.files && e.target.files[0];
+    if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const src=ev.target.result;
+      const img=new Image();
+      img.onload=()=>{
+        state.customImage=img;state.customImageSrc=src;state.customImageName=file.name;
+        if(state.customImageMode==='none') state.customImageMode='product';
+        $('customImageMode').value=state.customImageMode;
+        $('customImageThumb').src=src;$('customImageThumb').style.display='block';$('customImagePlaceholder').style.display='none';
+        renderArt();
+      };
+      img.src=src;
+    };
+    reader.readAsDataURL(file);
+  });
+  $('removeCustomImage').addEventListener('click',()=>{
+    state.customImage=null;state.customImageSrc='';state.customImageName='';state.customImageMode='none';
+    $('customImageInput').value='';$('customImageMode').value='none';$('customImageThumb').removeAttribute('src');$('customImageThumb').style.display='none';$('customImagePlaceholder').style.display='block';
+    renderArt();
+  });
+  $('copyPrompt').addEventListener('click',async()=>{
+    const str=$('promptText').value;let copied=false;
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(str);copied=true}}catch(err){/* Local file:// often blocks clipboard. */}
+    if(!copied){try{$('promptText').focus();$('promptText').select();copied=document.execCommand('copy')}catch(err){copied=false}}
+    $('copyFeedback').textContent=copied?'✓ 프롬프트를 복사했습니다. 외부 AI 서비스에 붙여넣으세요.':'자동 복사에 실패했습니다. 선택된 텍스트를 Ctrl+C로 복사해 주세요.';
+  });
+  $('selectPrompt').addEventListener('click',()=>{$('promptText').focus();$('promptText').select();$('copyFeedback').textContent='프롬프트가 선택되었습니다. Ctrl+C로 복사할 수 있습니다.'});
+  function downloadCanvas(canvas,filename){
+    try{const link=document.createElement('a');link.download=filename;link.href=canvas.toDataURL('image/png');document.body.appendChild(link);link.click();link.remove()}
+    catch(err){alert('이미지 저장에 실패했습니다. 브라우저의 캔버스 저장 권한을 확인해 주세요.');console.error(err)}
+  }
+  const stamp=()=>{const d=new Date();return d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'_'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')};
+  $('savePattern').addEventListener('click',()=>downloadCanvas(patternImage(1600,1600,160),'Tessellation_Pattern_'+stamp()+'.png'));
+  $('savePreview').addEventListener('click',()=>downloadCanvas(ac,'Tessellation_Preview_'+stamp()+'.png'));
+
+  // Expose a small diagnostic interface for off-line regression testing.
+  window.__tessLab={state,go,wave,makeTilePath,placementOrder,drawMove,drawEditor,drawPattern,renderArt,patternImage};
+  $('customImageScaleLabel').textContent=state.customImageScale.toFixed(2);$('customImageOpacityLabel').textContent=state.customImageOpacity.toFixed(2);renderPalettePreview('pattern',state.palette);renderPalettePreview('art',state.palette);changeMove();drawEditor();drawPattern();renderArt();
+})();
+</script>
+</body>
+</html>
